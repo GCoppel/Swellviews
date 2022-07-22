@@ -24,6 +24,8 @@ import moviemodel.*; //import moviemodel package
  */
 public class Home extends JFrame {
 
+    private static double screenHeight;
+
     private static int movieCounter = 0;
     private static int movieEnd = 0;
     private static int movieListEnd = 0;
@@ -81,6 +83,12 @@ public class Home extends JFrame {
 
 
     public static void main(String[] args) {
+
+        //Getting screen dimensions for scaling images
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        screenHeight = (screenSize.getHeight()/100)*40; //last int represents the height percentage of the poster images
+        System.out.println(screenHeight);
+
         //GSON IMPLEMENTATION CODE--------------------------------------------------------------------------------------
         String jsonString = "";
         Scanner inFile = null;
@@ -587,7 +595,7 @@ public class Home extends JFrame {
 
         for (int counter = 0; counter < 8; counter++) {
             if (e.hasNext()) {
-                MovieDisplay movie1 = new MovieDisplay(movieArrayList.get(movieCounter).getTitle(), movieArrayList.get(movieCounter).getPosterLink(), darkMode, 1);
+                MovieDisplay movie1 = new MovieDisplay(movieArrayList.get(movieCounter).getTitle(), movieArrayList.get(movieCounter).getPosterLink(), darkMode, screenHeight, 1);
                 movieCounter++;
                 movieGrid.add(movie1);
                 MovieDetailsDisplay(movie1, movieArrayList, movieCounter, darkMode); //Simply calling MovieDetailsDisplay does everything
@@ -1014,7 +1022,7 @@ public class Home extends JFrame {
             rateMovieButtons.setBackground(Color.darkGray);
         }
 
-        MovieDisplay movieSelectionDisplay = new MovieDisplay(movieArrayList.get(movieCounter - 1).getTitle(), movieArrayList.get(movieCounter - 1).getPosterLink(), darkMode, 1);
+        MovieDisplay movieSelectionDisplay = new MovieDisplay(movieArrayList.get(movieCounter - 1).getTitle(), movieArrayList.get(movieCounter - 1).getPosterLink(), darkMode, screenHeight, 1);
 
         movieSelected.addMouseListener(new MouseListener() {
             @Override

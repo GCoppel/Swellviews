@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.Objects;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.net.URL;
 
 /**
  * Class used to draw/display movie objects in a visual form. Displays the movie poster and the movie title below the poster.
@@ -20,6 +21,7 @@ public class MovieDisplay extends JPanel{
     private String moviePoster;
     private int showMovieTitle;
     private int titleDarkMode;
+    private double height;
 
     /**
      * Constructor for MovieDisplay objects. MovieDisplay objects automatically draw/display when placed inside the movieGrid.
@@ -28,8 +30,8 @@ public class MovieDisplay extends JPanel{
      * @param darkMode int, 1 = yes, dark mode on and 0 = no, dark mode off
      * @param showTitle int, 1 = yes, show title and 0 = no, don't show title
      */
-    public MovieDisplay(String name, String poster, int darkMode, int showTitle) {
-        this.movieName = name; this.moviePoster = poster; this.titleDarkMode = darkMode; this.showMovieTitle = showTitle;
+    public MovieDisplay(String name, String poster, int darkMode, double screenHeight, int showTitle) {
+        this.movieName = name; this.moviePoster = poster; this.titleDarkMode = darkMode; this.height = screenHeight; this.showMovieTitle = showTitle;
     }
 
     /**
@@ -46,33 +48,46 @@ public class MovieDisplay extends JPanel{
 
         Graphics2D g2d = (Graphics2D) g; //cast it
 
-        if (Objects.equals(moviePoster, "N/A")){
-            g2d.drawRect(0, 0, 300, 440);
-            g2d.setColor(Color.gray);
-            g2d.fillRect(0, 0, 300, 440);
-
-            g2d.setColor(Color.darkGray);
-            g2d.setFont(new Font("Missing Image Questionmark", Font.BOLD, 350));
-            g2d.drawString("?",40,330);
+        if (Objects.equals(moviePoster, "N/A")) {
+            paintMissing(g);
         }
         else {
             URL url = null;
             try {
                 url = new URL(moviePoster);
             } catch (MalformedURLException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
             BufferedImage movie_image = null;
             try {
                 movie_image = ImageIO.read(url);
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
+                paintMissing(g);
+                paintTitle(g);
+                return;
             }
             g2d.drawImage(movie_image.getScaledInstance(300,440,Image.SCALE_DEFAULT), 0, 0, null);
         }
+        paintTitle(g);
+    }
+
+    public void paintMissing(Graphics g){
+        Graphics2D g2d = (Graphics2D) g; //cast it
+
+        g2d.drawRect(0, 0, 300, 440);
+        g2d.setColor(Color.gray);
+        g2d.fillRect(0, 0, 300, 440);
+
+        g2d.setColor(Color.darkGray);
+        g2d.setFont(new Font("Missing Image Questionmark", Font.BOLD, 350));
+        g2d.drawString("?",40,330);
+    }
+
+    public void paintTitle(Graphics g){
+        Graphics2D g2d = (Graphics2D) g; //cast it
 
         if(showMovieTitle == 1) {
-
             if (titleDarkMode == 1){g2d.setColor(Color.white);}
             else {g2d.setColor(Color.black);}
             g2d.setFont(new Font("moviemodel.Movie Title", Font.PLAIN, 30));
@@ -85,6 +100,5 @@ public class MovieDisplay extends JPanel{
                 g2d.drawString(this.movieName, 0, 470);
             }
         }
-
     }
 }

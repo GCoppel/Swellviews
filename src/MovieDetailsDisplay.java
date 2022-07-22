@@ -18,7 +18,7 @@ public class MovieDetailsDisplay extends JFrame {
      * @param movieCounter The static int "movieCounter", used to know where in the ArrayList the Movie is
      * @param darkMode The static int "darkMode" (or manual 1 if yes, 0 if no)
      */
-    public MovieDetailsDisplay(MovieDisplay movieSelected, ArrayList<Movie> movieArrayList, int movieCounter, int darkMode){
+    public MovieDetailsDisplay(MovieDisplay movieSelected, ArrayList<Movie> movieArrayList, int movieCounter, int darkMode, double screenHeight){
 
         JFrame movieDetailsFrame = new JFrame(movieArrayList.get(movieCounter - 1).getTitle());
         JPanel movieDetailsRightPanel = new JPanel();
@@ -90,7 +90,7 @@ public class MovieDetailsDisplay extends JFrame {
             rateMovieButtons.setBackground(Color.darkGray);
         }
 
-        MovieDisplay movieSelectionDisplay = new MovieDisplay(movieArrayList.get(movieCounter-1).getTitle(), movieArrayList.get(movieCounter-1).getPosterLink(), darkMode, 1);
+        MovieDisplay movieSelectionDisplay = new MovieDisplay(movieArrayList.get(movieCounter-1).getTitle(), movieArrayList.get(movieCounter-1).getPosterLink(), darkMode, screenHeight, 1);
 
         movieSelected.addMouseListener(new MouseListener() {
             @Override
