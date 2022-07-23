@@ -9,6 +9,7 @@ public class User {
     private String profile = Username + " " + Password;
     private ArrayList<String> profiles = new ArrayList<String>();
     private double ratings;
+    private int darkModeActive = 0;
     private ArrayList<MovieCollection> myCollections = new ArrayList<MovieCollection>();
 
     public User(String username, String password) {
@@ -19,6 +20,13 @@ public class User {
     public ArrayList<MovieCollection> getMyCollections() { return myCollections; }
 
     public boolean addCollection(MovieCollection newCollection) { return true;}
+
+    public void setDarkModeActive(int active){
+        darkModeActive = active;
+    }
+    public int getDarkModeActive(){
+        return darkModeActive;
+    }
 
     //Log-in and check if valid user
     public boolean logIn(User testUser, ArrayList<User> allUsers) {

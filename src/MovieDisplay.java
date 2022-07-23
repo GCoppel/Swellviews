@@ -10,7 +10,6 @@ import java.net.URL;
 import java.util.Objects;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.net.URL;
 
 /**
  * Class used to draw/display movie objects in a visual form. Displays the movie poster and the movie title below the poster.
@@ -21,7 +20,6 @@ public class MovieDisplay extends JPanel{
     private String moviePoster;
     private int showMovieTitle;
     private int titleDarkMode;
-    private double height;
 
     /**
      * Constructor for MovieDisplay objects. MovieDisplay objects automatically draw/display when placed inside the movieGrid.
@@ -30,8 +28,8 @@ public class MovieDisplay extends JPanel{
      * @param darkMode int, 1 = yes, dark mode on and 0 = no, dark mode off
      * @param showTitle int, 1 = yes, show title and 0 = no, don't show title
      */
-    public MovieDisplay(String name, String poster, int darkMode, double screenHeight, int showTitle) {
-        this.movieName = name; this.moviePoster = poster; this.titleDarkMode = darkMode; this.height = screenHeight; this.showMovieTitle = showTitle;
+    public MovieDisplay(String name, String poster, int darkMode, int showTitle) {
+        this.movieName = name; this.moviePoster = poster; this.titleDarkMode = darkMode; this.showMovieTitle = showTitle;
     }
 
     /**
@@ -92,7 +90,7 @@ public class MovieDisplay extends JPanel{
             else {g2d.setColor(Color.black);}
             g2d.setFont(new Font("moviemodel.Movie Title", Font.PLAIN, 30));
 
-            if (movieName.length() > 25){
+            if (movieName.length() > 23){
                 String movieNameCondensed = movieName.substring(0,20) + "...";
                 g2d.drawString(movieNameCondensed, 0, 470);
             }

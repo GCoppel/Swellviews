@@ -2,6 +2,8 @@ import moviemodel.Movie;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -18,9 +20,10 @@ public class MovieDetailsDisplay extends JFrame {
      * @param movieCounter The static int "movieCounter", used to know where in the ArrayList the Movie is
      * @param darkMode The static int "darkMode" (or manual 1 if yes, 0 if no)
      */
-    public MovieDetailsDisplay(MovieDisplay movieSelected, ArrayList<Movie> movieArrayList, int movieCounter, int darkMode, double screenHeight){
+    public MovieDetailsDisplay(MovieDisplay movieSelected, ArrayList<Movie> movieArrayList, int movieCounter, int darkMode){
 
         JFrame movieDetailsFrame = new JFrame(movieArrayList.get(movieCounter - 1).getTitle());
+        movieDetailsFrame.setIconImage(Home.icon);
         JPanel movieDetailsRightPanel = new JPanel();
         movieDetailsRightPanel.setLayout(new GridLayout(13,1));
 
@@ -35,6 +38,7 @@ public class MovieDetailsDisplay extends JFrame {
 
         JLabel moviePlotLabel = new JLabel("Plot:");
         JTextArea moviePlot = new JTextArea (movieArrayList.get(movieCounter - 1).getPlot());
+            JScrollPane moviePlotContainer = new JScrollPane(moviePlot, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         moviePlot.setEditable(false);
         moviePlot.setWrapStyleWord(true);
         moviePlot.setLineWrap(true);
@@ -63,13 +67,32 @@ public class MovieDetailsDisplay extends JFrame {
         movieDetailsRightPanel.add(movieActors);
         movieDetailsRightPanel.add(movieAwards);
         movieDetailsRightPanel.add(moviePlotLabel);
-        movieDetailsRightPanel.add(moviePlot);
+        movieDetailsRightPanel.add(moviePlotContainer);
         movieDetailsRightPanel.add(rateMovieButtons);
-        movieDetailsRightPanel.add(addToCollection);
+        //movieDetailsRightPanel.add(addToCollection); Removed because backend functionality was not completed
 
+        likeMovie.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                    if (!Home.likedMovies.contains(movieArrayList.get(movieCounter - 1))){ //Prevents duplicate movies in the collection
+                    Home.likedMovies.add(movieArrayList.get(movieCounter - 1));
+                }
+            }
+        });
 
+        dislikeMovie.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!Home.dislikedMovies.contains(movieArrayList.get(movieCounter - 1))){ //Prevents duplicate movies in the collection
+                    Home.dislikedMovies.add(movieArrayList.get(movieCounter - 1));
+                }
+            }
+        });
+
+        Dimension frameSize = new Dimension(700, 550); //Controls default and min size of details frame
         movieDetailsFrame.setLayout(new GridLayout(1,2));
-        movieDetailsFrame.setSize(700, 550);
+        movieDetailsFrame.setSize(frameSize);
+        movieDetailsFrame.setMinimumSize(frameSize); //Prevents details on right from overlapping with the image if shrunken past the default size
         movieDetailsFrame.setLocationRelativeTo(null);
 
         if (darkMode == 1) {
@@ -90,7 +113,7 @@ public class MovieDetailsDisplay extends JFrame {
             rateMovieButtons.setBackground(Color.darkGray);
         }
 
-        MovieDisplay movieSelectionDisplay = new MovieDisplay(movieArrayList.get(movieCounter-1).getTitle(), movieArrayList.get(movieCounter-1).getPosterLink(), darkMode, screenHeight, 1);
+        MovieDisplay movieSelectionDisplay = new MovieDisplay(movieArrayList.get(movieCounter-1).getTitle(), movieArrayList.get(movieCounter-1).getPosterLink(), darkMode, 1);
 
         movieSelected.addMouseListener(new MouseListener() {
             @Override
@@ -99,24 +122,15 @@ public class MovieDetailsDisplay extends JFrame {
                 movieDetailsFrame.add(movieDetailsRightPanel);
                 movieDetailsFrame.setVisible(true);
             }
-
             //These shouldn't be needed:
             @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
+            public void mousePressed(MouseEvent e) {}
             @Override
-            public void mouseReleased(MouseEvent e) {
-
-            }
+            public void mouseReleased(MouseEvent e) {}
             @Override
-            public void mouseEntered(MouseEvent e) {
-
-            }
+            public void mouseEntered(MouseEvent e) {}
             @Override
-            public void mouseExited(MouseEvent e) {
-
-            }
+            public void mouseExited(MouseEvent e) {}
         });
     }
     }
