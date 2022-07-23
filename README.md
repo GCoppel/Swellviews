@@ -1,4 +1,4 @@
-# Swellviews
+# Swellviews - George's Version
 This is a (soon to be) completed repository of a group project for CS321 which was not completed for reasons mostly outside of my own control. 
 
 However, even though the class is over, I thought it would be worthwhile to finish the project not only to have a decently large and complex project in my repositories, but also so that I could get a more complete understanding of all the different parts of the application creation process.
