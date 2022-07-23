@@ -1,4 +1,5 @@
 # Swellviews - George's Version
+
 This is a (soon to be) completed repository of a group project for CS321 which was not completed for reasons mostly outside of my own control. 
 
 However, even though the class is over, I thought it would be worthwhile to finish the project not only to have a decently large and complex project in my repositories, but also so that I could get a more complete understanding of all the different parts of the application creation process.
@@ -11,3 +12,11 @@ The majority of the collection system was completed, but very little of the acco
 So, I took it upon myself to complete this functionality along with the smaller improvements/finalizations to other areas. 
 
 *Note: As of writing this README, the account system is still incomplete but should be ready before August 2022. If you're reading this after then, I just forgot to take this note out. 
+
+# What it is/How to use it
+
+Swellviews is a simple java application meant to act similarly to the basic functionalities of goodreads.com except with a focus on movies rather than books.
+
+Users can browse, sort, filter, and search through a collection of movies (stored in a local JSON file), viewing details such as their runtime, age rating, IMDB rating, etc. They can also add movies to collections, including simply "liked" and "disliked" movies as well as custom collections, all of which are tied to their accounts created with the usual username and password system (and stored locally in JSON format). 
+
+There's also a dark mode! 
