@@ -9,4 +9,5 @@ Other areas also had room for improvement; like the search feature, for example,
 But the biggest change was the account/user system. The goal was to have a way for users to create accounts with a username and password that they would use to store "collections" of movies. 
 The majority of the collection system was completed, but very little of the account system was ever creted. 
 So, I took it upon myself to complete this functionality along with the smaller improvements/finalizations to other areas. 
+
 *Note: As of writing this README, the account system is still incomplete but should be ready before August 2022. If you're reading this after then, I just forgot to take this note out. 
