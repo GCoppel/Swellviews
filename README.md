@@ -72,7 +72,7 @@ There's also a dark mode!
 
 **View Movie Collections:** Click the "Collections" button at the top of the screen and select whether you'd like to view "Liked" or "Disliked" movies. All movies added to the chosen collection will be displayed. The user can still use the "Show More" and "Go Back" buttons on the bottom of the screen if they have more than eight movies in a collection. **NOTE: If the user is not logged into their account, they will not be able to see any of their liked or disliked movies from the last time they were logged in.**
 
-Screenshots:
+# Screenshots:
 
 ![Screenshot of the landing/browse page in light mode.](README_Images/Swellviews_LandingPage.jpg)
 
