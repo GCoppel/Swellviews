@@ -1,11 +1,13 @@
+import com.google.gson.Gson;
 import moviemodel.Movie;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -19,8 +21,10 @@ public class MovieDetailsDisplay extends JFrame {
      * @param movieArrayList ArrayList of Movie objects being viewed
      * @param movieCounter The static int "movieCounter", used to know where in the ArrayList the Movie is
      * @param darkMode The static int "darkMode" (or manual 1 if yes, 0 if no)
+     * @param currentUser The User object which is currently logged in. Used to find which user object the "add" functions should add a movie to.
+     * @param userDatabase The Arraylist of all existing users as compiled from the JSON file by Home.java.
      */
-    public MovieDetailsDisplay(MovieDisplay movieSelected, ArrayList<Movie> movieArrayList, int movieCounter, int darkMode){
+    public MovieDetailsDisplay(MovieDisplay movieSelected, ArrayList<Movie> movieArrayList, int movieCounter, int darkMode, User currentUser, ArrayList<User> userDatabase){
 
         JFrame movieDetailsFrame = new JFrame(movieArrayList.get(movieCounter - 1).getTitle());
         movieDetailsFrame.setIconImage(Home.icon);
@@ -55,8 +59,6 @@ public class MovieDetailsDisplay extends JFrame {
         rateMovieButtons.add(dislikeMovie);
         rateMovieButtons.add(likeMovie);
 
-        JButton addToCollection = new JButton("Add to Collection");
-
         movieDetailsRightPanel.add(movieTitle);
         movieDetailsRightPanel.add(movieGenre);
         movieDetailsRightPanel.add(movieYear);
@@ -69,22 +71,37 @@ public class MovieDetailsDisplay extends JFrame {
         movieDetailsRightPanel.add(moviePlotLabel);
         movieDetailsRightPanel.add(moviePlotContainer);
         movieDetailsRightPanel.add(rateMovieButtons);
-        //movieDetailsRightPanel.add(addToCollection); Removed because backend functionality was not completed
 
+        //Add movie to the likedMovies Arraylist used for displaying to movieGrid.
+        //Also add movie to the current user's JSON section if logged in
         likeMovie.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                    if (!Home.likedMovies.contains(movieArrayList.get(movieCounter - 1))){ //Prevents duplicate movies in the collection
-                    Home.likedMovies.add(movieArrayList.get(movieCounter - 1));
+                if (!Home.likedMovies.contains(movieArrayList.get(movieCounter - 1))){ //Prevents duplicate movies in the collection
+                    Home.likedMovies.add(movieArrayList.get(movieCounter - 1)); //Add the movie to the likedMovies Arraylist used for displaying to MovieGrid.
+                    for (int i=0; i<userDatabase.size(); i++){ //Iterate through all existing user accounts to compare with current user's username
+                        if (currentUser.getUsername().equals(userDatabase.get(i).getUsername())){ //If user exists:
+                            userDatabase.get(i).addLiked(movieArrayList.get(movieCounter - 1)); //Add the movie to their liked movies collection
+                            updateJSON(userDatabase);//Update JSON file of user data
+                        }
+                    }
                 }
             }
         });
 
+        //Add movie to the dislikedMovies Arraylist used for displaying to movieGrid.
+        //Also add movie to the current user's JSON section if logged in
         dislikeMovie.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!Home.dislikedMovies.contains(movieArrayList.get(movieCounter - 1))){ //Prevents duplicate movies in the collection
-                    Home.dislikedMovies.add(movieArrayList.get(movieCounter - 1));
+                    Home.dislikedMovies.add(movieArrayList.get(movieCounter - 1)); //Add the movie to the dislikedMovies Arraylist used for displaying to MovieGrid.
+                    for (int i=0; i<userDatabase.size(); i++){ //Iterate through all existing user accounts to compare with current user's username
+                        if (currentUser.getUsername().equals(userDatabase.get(i).getUsername())){ //If user exists:
+                            userDatabase.get(i).addDisliked(movieArrayList.get(movieCounter - 1)); //Add the movie to their disliked movies collection
+                            updateJSON(userDatabase); //Update JSON file of user data
+                        }
+                    }
                 }
             }
         });
@@ -113,11 +130,13 @@ public class MovieDetailsDisplay extends JFrame {
             rateMovieButtons.setBackground(Color.darkGray);
         }
 
+        //Create a movieDetailsDisplay object for each movie currently being displayed:
+        //Uses movieCounter-1 because movieCounter is iterated before this constructor method. Finds the correct movie from the complete list of movies.
         MovieDisplay movieSelectionDisplay = new MovieDisplay(movieArrayList.get(movieCounter-1).getTitle(), movieArrayList.get(movieCounter-1).getPosterLink(), darkMode, 1);
 
         movieSelected.addMouseListener(new MouseListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(MouseEvent e) { //On click:
                 movieDetailsFrame.add(movieSelectionDisplay);
                 movieDetailsFrame.add(movieDetailsRightPanel);
                 movieDetailsFrame.setVisible(true);
@@ -133,4 +152,24 @@ public class MovieDetailsDisplay extends JFrame {
             public void mouseExited(MouseEvent e) {}
         });
     }
+
+    //Same exact code as in Home when new user is added. Can definitely be optimized better.
+    /**
+     * Used to update the JSON file using GSON to directly add movie objects.
+     * @param userDatabase is the arraylist containing all user objects.
+     */
+    public void updateJSON(ArrayList<User> userDatabase){
+        Gson gson = new Gson();
+        try (FileWriter jsonOut = new FileWriter("src\\UserData.json")) {
+            jsonOut.write("[\n"); //needed for end of file
+            for (int i = 0; i < userDatabase.size(); i++) {
+                gson.toJson(userDatabase.get(i), jsonOut);
+                if(!(i == userDatabase.size() - 1)){ jsonOut.write(", \n");} //only adds when not the last line
+            }
+            jsonOut.write("\n]"); //needed for end of file
+        }
+        catch (IOException exception){
+            exception.printStackTrace();
+        }
     }
+}

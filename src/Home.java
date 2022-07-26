@@ -1,5 +1,3 @@
-//DESIGN PATTERN: The Home class is modeled after the Observer design pattern
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,6 +19,7 @@ import moviemodel.*; //import moviemodel package
  * movieListEnd - used to know when the ArrayList of movies has ended. 0 if there are more to read, 1 if not.
  * arrayListName - an ArrayList of Movie objects that is given new ArrayLists by Search, Filter, Sort, and Collection models. Used by movie display views.
  * displayName - a String used by movieGridUpdater
+ * currentUser - a User object that holds the username of the person logged in. Is set to username=john and password=doe by default. Used by MovieDetailsDisplay to know which user to add a movie to.
  */
 public class Home extends JFrame {
 
@@ -30,6 +29,8 @@ public class Home extends JFrame {
     private static ArrayList<Movie> arrayListName = new ArrayList<Movie>();
 
     private static String displayName;
+
+    private static User currentUser = new User("john", "doe");
 
     private static int darkMode = 0;
 
@@ -70,10 +71,7 @@ public class Home extends JFrame {
     static JRadioButton sortLongShort = new JRadioButton("Longest to Shortest");
 
     //STATIC ARRAYLIST TO HOLD ALL USER DATA
-    static ArrayList<User> userDatabase = new ArrayList<User>(); // An array list to hold a collection of movies
-
-    //STATIC VARIABLE TO SEE IF LOGGED IN
-    static int loggedIn = 0;
+    static ArrayList<User> userDatabase = new ArrayList<User>();
 
     //STATIC ARRAYLISTS FOR LIKED AND DISLIKED MOVIES
     static ArrayList<Movie> likedMovies = new ArrayList<Movie>();
@@ -168,9 +166,9 @@ public class Home extends JFrame {
             @Override
             public void actionPerformed(ActionEvent button_pressed) {
                 searchedForMovies.removeAll(searchedForMovies); //Reset the array
-                //Since there is no way to tell what category the search term is (horror, title, actor, etc.)
-                //Each attribute will need to be checked individually and the array of movies that match will
-                //need to be checked so it is not put in multiple times
+
+                //Since there is no way to tell what category the search term is (horror, title, actor, etc.), each attribute will need to be checked individually and the array of movies that match will need to be checked so it is not put in multiple times
+
                 //SEARCH BY TITLE
                 for (Movie testMovie : CompleteMovieArrayList) {
                     if (!searchedForMovies.contains(testMovie)) {
@@ -220,7 +218,6 @@ public class Home extends JFrame {
                         }
                     }
                 }
-
                 //Display movies that were found in the search
                 arrayListName = searchedForMovies;
                 movieCounter = 0;
@@ -483,7 +480,6 @@ public class Home extends JFrame {
                         }
                     }
                 }
-
                 //Display movies that were found in the search
                 arrayListName = filteredMovies;
                 movieCounter = 0;
@@ -536,18 +532,18 @@ public class Home extends JFrame {
             }
         });
 
-        forwardAndBackButtons.add(goBack);
-        forwardAndBackButtons.add(getMoreMovies);
-        forwardAndBackButtons.add(goHome);
+        forwardAndBackButtons.add(goBack); //Add JButton for going back a page in the list of currently displayed movies
+        forwardAndBackButtons.add(getMoreMovies); //Add JButton for going forward a page in the list of currently displayed movies.
+        forwardAndBackButtons.add(goHome); //Add JButton for resetting the movieGrid to it's default "browse"
 
         collectionMenu(buttonCollections, forwardAndBackButtons, homeFrame, movieGrid); // Calls the collectionMenu function and attaches it to the "Collections" button (buttonCollections)
         accountMenu(buttonAccount); // Calls the accountMenu function and attaches it to the "Account" button (buttonAccount)
-        filterMenu(buttonFilter);
-        sortMenu(buttonSort);
+        filterMenu(buttonFilter); //Calls the filterMenu function and attaches it to the "Filter" button (buttonFilter)
+        sortMenu(buttonSort); //Calls the sortMenu function and attaches it to the "Sort" button (buttonSort)
 
         homeFrame.setLayout(new BorderLayout()); // Sets the homepage frame to a border layout (5 sections: north, south, east, west, and center)
 
-        movieGridUpdater(homeFrame, forwardAndBackButtons, CompleteMovieArrayList, movieGrid);
+        movieGridUpdater(homeFrame, forwardAndBackButtons, CompleteMovieArrayList, movieGrid); //Call function to set movieGrid to "Browse" for startup.
 
         //Positioning homepage frame elements
         homeFrame.add(header, BorderLayout.PAGE_START);
@@ -573,28 +569,29 @@ public class Home extends JFrame {
 
         movieGrid.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), displayName)); //Etched border to display type of content being presented (set by string displayName above)
 
+        //Set background color depending on if darkmode is enabled (1)
         if (darkMode == 0) {
-            movieGrid.setBackground(null);
-            forwardAndBackButtons.setBackground(null);
+            movieGrid.setBackground(null); //null = default light-grey
+            forwardAndBackButtons.setBackground(null); //null = default light-grey
         } else {
-            movieGrid.setBackground(Color.darkGray);
-            forwardAndBackButtons.setBackground(Color.darkGray);
+            movieGrid.setBackground(Color.darkGray); //Set background color to a darker grey when darkMode is enabled
+            forwardAndBackButtons.setBackground(Color.darkGray); //Set background color to a darker grey when darkMode is enabled
         }
 
-        Iterator e = movieArrayList.iterator();
-        int iteratorCounter = 0;
+        Iterator e = movieArrayList.iterator(); //Iterates through the Arraylist of movies currently being shown to determine how many there are.
+        int iteratorCounter = 0; //Stores the number of movies in the Arraylist, used to know where it ends so that the user can't go past.
 
-        while (movieCounter > iteratorCounter) {
+        while (movieCounter > iteratorCounter) { //Finding value of iteratorCounter to now where the Arraylist ends so the user can't go past it.
             e.next();
             iteratorCounter++;
         }
-
+        //Find the next 8 movies for display and display them. If there are less than 8 to display, break early.
         for (int counter = 0; counter < 8; counter++) {
             if (e.hasNext()) {
                 MovieDisplay movie1 = new MovieDisplay(movieArrayList.get(movieCounter).getTitle(), movieArrayList.get(movieCounter).getPosterLink(), darkMode, 1);
                 movieCounter++;
                 movieGrid.add(movie1);
-                new MovieDetailsDisplay(movie1, movieArrayList, movieCounter, darkMode); //Simply calling MovieDetailsDisplay does everything
+                new MovieDetailsDisplay(movie1, movieArrayList, movieCounter, darkMode, currentUser, userDatabase); //Simply calling MovieDetailsDisplay does everything
                 e.next();
             } else {
                 movieEnd = 8 - counter;
@@ -607,13 +604,14 @@ public class Home extends JFrame {
 
     /**
      * Controls the account menu where users can log in, log out, create account, and toggle dark mode.
+     * "Create Account" is located within the login menu, uses a JSON file run through GSON to directly insert Movie objects.
      * @param buttonAccount JButton for "Account" (used to attach ActionListener that opens the account menu)
      */
     public static void accountMenu(JButton buttonAccount) {
 
         JPopupMenu accountmenu = new JPopupMenu();
-        JButton loginButton = new JButton("Log In                         ");
-        JButton toggleDarkMode = new JButton("ToggleDarkMode    ");
+        JButton loginButton = new JButton("Log In/Create an Account");
+        JButton toggleDarkMode = new JButton("ToggleDarkMode               ");
 
         JFrame loginWindow = new JFrame("Login"); //"Popup" window for entering user info
         loginWindow.setIconImage(icon);
@@ -629,7 +627,7 @@ public class Home extends JFrame {
         JButton enterButton = new JButton("Enter");          // Confirm login button
         JButton createAccountButton = new JButton("Create new account ");
 
-        JButton logoutB = new JButton("Log out");   // Logout button
+        JButton logoutB = new JButton("Log out                                 ");   // Logout button
 
         JLabel userLabel = new JLabel("Username:");     // Username Label
         JLabel passLabel = new JLabel("Password:");     // Password Label
@@ -679,37 +677,121 @@ public class Home extends JFrame {
         //Contents of loginFailed frame:
         loginFailed.add(new JLabel("    Log-In Failed: Invalid Credentials"));
 
+        //When user clicks "Enter" after inputting credentials:
         enterButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent button_pressed) {
-                User checkUser = new User(userField.getText(), passField.getText());
+                User checkUser = new User(userField.getText(), passField.getText()); //create a temp user from username and password fields for comparison against existing accounts.
                 if (checkUser.logIn(checkUser, userDatabase)) {
-                    accountmenu.add(logoutB);
-                    loginButton.setVisible(false);
+                    currentUser.setUsername(userField.getText()); //Save username of current user to temp (static) variable to know who/where new info should be saved to
+                    accountmenu.add(logoutB); //Add logout button to accountMenu.
+                    logoutB.setVisible(true); //Make sure logout button is visible (important if user has already logged out once before).
+                    loginButton.setVisible(false); //Hide login button since user must log out first.
+
+                    //Empty temp collections:
+                    likedMovies.clear();
+                    dislikedMovies.clear();
+
+                    //Load in user's collections from JSON file:
+                    for (int i=0; i<userDatabase.size(); i++){
+                        if (currentUser.getUsername().equals(userDatabase.get(i).getUsername())){ //Only load the collections of the currently logged in user.
+                            likedMovies.addAll(userDatabase.get(i).getLiked()); //Get liked movies and add them to the likedMovies Arraylist used for displaying in movieGrid.
+                            dislikedMovies.addAll(userDatabase.get(i).getDisliked()); //Get disliked movies and add them to the dislikedMovies Arraylist used for displaying in movieGrid.
+                        }
+                    }
                 }
                 else {
-                    loginFailed.setVisible(true);
+                    loginFailed.setVisible(true); //Notify user of failed login attempt.
                 }
-
                 loginWindow.setVisible(false); //Close the window after
             }
         });
 
+        //When user choose to create a new account from within the "Log-In" JFrame menu
+        createAccountButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                loginWindow.setVisible(false); //Close login window
+
+                //Creating new popup for account creation
+                JFrame createNewUser = new JFrame("Create a New Account");
+                JPanel enterUserInfo = new JPanel();
+                enterUserInfo.setLayout(new GridLayout(5, 1));
+                enterUserInfo.setBorder(BorderFactory.createEmptyBorder(0,5,5,5)); //Add margin to the panel and it's fields so they aren't directly on the edge
+
+                //Adding SwellViews icon to new JFrame
+                createNewUser.setIconImage(icon);
+                createNewUser.setResizable(false); // Makes the window non-resizable
+
+                //Setting size and location of popup menu
+                createNewUser.setSize(250, 200);
+                createNewUser.setLocationRelativeTo(null);
+                createNewUser.setVisible(true);
+
+                //Creating input fields, labels, and "enter" button
+                JLabel newUsernameLabel = new JLabel("Enter New Username:"); //Username
+                JTextField newUsername = new JTextField("username");
+                JLabel newPasswordLabel = new JLabel("Enter New Password:"); //Password
+                JTextField newPassword = new JTextField("password");
+                JButton createAccountButton = new JButton("Create Account"); //The JButton used to confirm account creation
+
+                //Adding input field and labels into JPanel
+                enterUserInfo.add(newUsernameLabel);
+                enterUserInfo.add(newUsername);
+                enterUserInfo.add(newPasswordLabel);
+                enterUserInfo.add(newPassword);
+                enterUserInfo.add(createAccountButton);
+
+                //Adding content to JFrame
+                createNewUser.add(enterUserInfo);
+
+                //When user confirms account creation:
+                createAccountButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        //Add the new user to the temp database before outputting entire database to JSON
+                        userDatabase.add(new User(newUsername.getText(), newPassword.getText()));
+                        //Output to JSON file through GSON (used to add Movie objects in same format as SampleMovieFile.json)
+                        Gson gson = new Gson();
+                        try (FileWriter jsonOut = new FileWriter("src\\UserData.json")) { //Open JSON file being outputted to
+                            jsonOut.write("[\n"); //needed for start of file
+                            for (int i = 0; i < userDatabase.size(); i++) { //Iterates through Arraylist of existing users
+                                gson.toJson(userDatabase.get(i), jsonOut); //Adds each user in the Arraylist being iterated into the JSON file using GSON to directly insert Movie objects
+                                if(!(i == userDatabase.size() - 1)){ jsonOut.write(", \n");} //only adds when not the last line
+                            }
+                            jsonOut.write("\n]"); //needed for end of file
+                        }
+                        catch (IOException exception){
+                            exception.printStackTrace();
+                        }
+                    }
+                });
+            }
+        });
+
+        //Toggles darkMode to ON (1) or OFF (0) when button is clicked.
         toggleDarkMode.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (darkMode == 1) {
+                if (darkMode == 1) { //If darkMode is ON (1) turn to OFF (0)
                     darkMode = 0;
-                } else {
+                } else { //If darkMode is OFF (0) turn to ON (1)
                     darkMode = 1;
                 }
             }
         });
 
+        //Reactivates login menu and resets currentUser to default values when user clicks the logout button
         logoutB.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                //Re-enable visibility to the log-in and create account buttons, disable visibility on log-out
+                //Re-enable visibility to the log-in and create account buttons, disable visibility on log-out:
                 loginButton.setVisible(true);
                 logoutB.setVisible(false);
+                currentUser.setUsername("john"); //Resets to default username "john"
+
+                //Clear logged in user's collections from GUI:
+                likedMovies.clear();
+                dislikedMovies.clear();
             }
         });
     }
@@ -745,6 +827,7 @@ public class Home extends JFrame {
                 SwingUtilities.updateComponentTreeUI(home);
                 movieListEnd = 0;
                 displayName = "Liked Movies";
+                arrayListName = likedMovies; //arrayListName used by "Show More" and "Go Back" buttons
                 movieGridUpdater(home, forwardAndBackButtons, likedMovies, movieGrid);
             }
         });
@@ -757,6 +840,7 @@ public class Home extends JFrame {
                 SwingUtilities.updateComponentTreeUI(home);
                 movieListEnd = 0;
                 displayName = "Disliked Movies";
+                arrayListName = dislikedMovies; //arrayListName used by "Show More" and "Go Back" buttons
                 movieGridUpdater(home, forwardAndBackButtons, dislikedMovies, movieGrid);
             }
         });
@@ -764,20 +848,6 @@ public class Home extends JFrame {
         //Adding items to the collectionMenu list:
         collectionMenu.add(likedMoviesList);
         collectionMenu.add(dislikedMoviesList);
-
-        //collectionMenu.add(createCollection); // Button for creating a new collection (should be kept at the bottom)
-
-        //Creating items for the createNewCollection popup:
-            /*JLabel collectionNameLabel = new JLabel("Enter Collection Name:");
-            JTextField collectionNameField = new JTextField("New Collection");
-            collectionNameField.setSize(100, 10);
-            JButton collectionCreate = new JButton("Create");
-            //Adding items to the createNewCollection popup:
-            createNewCollectionPanel.add(collectionNameLabel);
-            createNewCollectionPanel.add(collectionNameField);
-            createNewCollectionPanel.add(collectionCreate);
-            createNewCollection.setSize(310, 100);
-            createNewCollection.setLocationRelativeTo(null);*/
 
         //ActionListener for showing collection list menu when "Collections" button pressed
         buttonCollections.addActionListener(new ActionListener() { // When the collections button (buttonCollections) is pressed...
@@ -795,14 +865,6 @@ public class Home extends JFrame {
                 createNewCollection.setVisible(true);
             }
         });
-
-        //ActionListener for adding a new collection when "Create" is pressed within the createNewCollection Frame
-           /* collectionCreate.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    System.out.println(collectionNameField.getText());
-                }
-            });*/
     }
 
     /**
